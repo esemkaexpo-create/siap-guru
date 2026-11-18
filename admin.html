@@ -545,44 +545,213 @@ td{padding:13px 12px;border-bottom:1px solid var(--border)}
 </div>
 
 <script>
-const titles={
-  dashboard:"Dashboard",
-  guru:"Data Guru",
-  pendaftaran:"Persetujuan Guru",
-  monitoring:"Monitoring Presensi",
-  laporan:"Laporan Presensi",
-  izin:"Izin & Cuti",
-  pengaturan:"Pengaturan Sistem"
+
+const API_BASE = "https://presensi-guru-api.esemkaexpo.workers.dev";
+
+const titles = {
+  dashboard: "Dashboard",
+  guru: "Data Guru",
+  pendaftaran: "Persetujuan Guru",
+  monitoring: "Monitoring Presensi",
+  laporan: "Laporan Presensi",
+  izin: "Izin & Cuti",
+  pengaturan: "Pengaturan Sistem"
 };
 
-function showPage(page){
-  document.querySelectorAll(".page").forEach(el=>{
-    el.classList.toggle("active",el.id===page);
+// Sembunyikan dashboard sebelum sesi diperiksa.
+document.documentElement.style.visibility = "hidden";
+
+function createLoginScreen(message = "") {
+  document.querySelector(".layout").style.display = "none";
+
+  let screen = document.getElementById("authScreen");
+
+  if (!screen) {
+    screen = document.createElement("div");
+    screen.id = "authScreen";
+    screen.style.cssText = `
+      min-height:100vh;display:flex;align-items:center;
+      justify-content:center;background:#f5f8fa;
+      padding:20px;font-family:Inter,Arial,sans-serif;
+    `;
+
+    screen.innerHTML = `
+      <div style="
+        width:100%;max-width:410px;background:white;
+        padding:35px;border-radius:20px;text-align:center;
+        box-shadow:0 10px 40px #0f172a12;
+      ">
+        <div style="
+          width:65px;height:65px;margin:0 auto 18px;
+          border-radius:18px;background:#0d9488;color:white;
+          display:grid;place-items:center;font-size:25px;
+          font-weight:800;
+        ">SG</div>
+        <h2 style="margin:0;color:#1e293b">SIAP GURU</h2>
+        <p style="color:#64748b;font-size:13px">
+          Panel Administrator SMKN 1 WAJO
+        </p>
+        <p id="authMessage" style="
+          color:#dc2626;font-size:12px;margin:18px 0;
+        "></p>
+        <button id="telegramLogin" style="
+          width:100%;padding:14px;border:0;border-radius:10px;
+          background:#0d9488;color:white;font-weight:700;
+          font-size:14px;cursor:pointer;
+        ">Login dengan Telegram</button>
+        <p style="color:#94a3b8;font-size:11px;margin-top:20px">
+          Akses khusus administrator sekolah
+        </p>
+      </div>
+    `;
+
+    document.body.appendChild(screen);
+
+    document.getElementById("telegramLogin").onclick = () => {
+      window.location.href = API_BASE + "/auth/login";
+    };
+  }
+
+  document.getElementById("authMessage").textContent = message;
+  document.documentElement.style.visibility = "visible";
+}
+
+async function verifyAdminSession() {
+  const params = new URLSearchParams(window.location.hash.slice(1));
+  const newToken = params.get("session");
+
+  if (newToken) {
+    sessionStorage.setItem("siapGuruSession", newToken);
+    history.replaceState(
+      null,
+      document.title,
+      window.location.pathname + window.location.search
+    );
+  }
+
+  const token = sessionStorage.getItem("siapGuruSession");
+
+  if (!token) {
+    const error = new URLSearchParams(location.search)
+      .get("auth_error");
+
+    createLoginScreen(error || "Silakan login untuk melanjutkan.");
+    return;
+  }
+
+  try {
+    const response = await fetch(API_BASE + "/auth/me", {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error("Sesi tidak valid atau sudah berakhir.");
+    }
+
+    const result = await response.json();
+
+    if (!result.authenticated || !result.user) {
+      throw new Error("Akses administrator ditolak.");
+    }
+
+    document.querySelector(".layout").style.display = "flex";
+
+    const adminName = result.user.name || "Administrator";
+
+    document.querySelector(".welcome h1").textContent =
+      "Selamat Datang, " + adminName + "! 👋";
+
+    document.querySelector(".admin-profile strong").textContent =
+      adminName;
+
+    document.querySelector(".admin-profile .avatar").textContent =
+      adminName.charAt(0).toUpperCase();
+
+    document.documentElement.style.visibility = "visible";
+
+    addLogoutButton();
+
+  } catch (error) {
+    sessionStorage.removeItem("siapGuruSession");
+    createLoginScreen(error.message);
+  }
+}
+
+function addLogoutButton() {
+  const actions = document.querySelector(".top-actions");
+
+  const button = document.createElement("button");
+  button.textContent = "Keluar";
+  button.style.cssText = `
+    border:0;border-radius:9px;padding:9px 14px;
+    background:#fff0e5;color:#c2410c;
+    font-weight:700;cursor:pointer;
+  `;
+
+  button.onclick = async () => {
+    const token = sessionStorage.getItem("siapGuruSession");
+
+    try {
+      await fetch(API_BASE + "/auth/logout", {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      });
+    } catch (error) {
+      console.error("Logout API:", error);
+    }
+
+    sessionStorage.removeItem("siapGuruSession");
+    location.reload();
+  };
+
+  actions.appendChild(button);
+}
+
+function showPage(page) {
+  document.querySelectorAll(".page").forEach(el => {
+    el.classList.toggle("active", el.id === page);
   });
-  document.querySelectorAll(".nav-item").forEach(el=>{
-    el.classList.toggle("active",el.dataset.page===page);
+
+  document.querySelectorAll(".nav-item").forEach(el => {
+    el.classList.toggle("active", el.dataset.page === page);
   });
-  document.getElementById("topTitle").textContent=titles[page]||"Dashboard";
+
+  document.getElementById("topTitle").textContent =
+    titles[page] || "Dashboard";
+
   document.getElementById("sidebar").classList.remove("open");
 }
 
-document.querySelectorAll(".nav-item").forEach(btn=>{
-  btn.addEventListener("click",()=>showPage(btn.dataset.page));
+document.querySelectorAll(".nav-item").forEach(btn => {
+  btn.addEventListener("click", () => showPage(btn.dataset.page));
 });
 
-document.querySelectorAll(".quick").forEach(btn=>{
-  btn.addEventListener("click",()=>showPage(btn.dataset.target));
+document.querySelectorAll(".quick").forEach(btn => {
+  btn.addEventListener("click", () => showPage(btn.dataset.target));
 });
 
-document.getElementById("toggleMenu").addEventListener("click",()=>{
+document.getElementById("toggleMenu").addEventListener("click", () => {
   document.getElementById("sidebar").classList.toggle("open");
 });
 
-const now=new Date();
-document.getElementById("today").textContent=
-  now.toLocaleDateString("id-ID",{
-    weekday:"long",day:"numeric",month:"long",year:"numeric"
+const now = new Date();
+
+document.getElementById("today").textContent =
+  now.toLocaleDateString("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "Asia/Makassar"
   });
+
+verifyAdminSession();
+  
 </script>
 </body>
 </html>
