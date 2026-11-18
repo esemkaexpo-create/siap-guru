@@ -1,0 +1,588 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d9488">
+<title>Dashboard Admin | SIAP GURU</title>
+
+<style>
+:root{
+  --primary:#0d9488;
+  --primary-dark:#0f766e;
+  --orange:#f97316;
+  --bg:#f5f8fa;
+  --white:#ffffff;
+  --text:#1e293b;
+  --muted:#64748b;
+  --border:#e5edf0;
+  --sidebar:260px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+button{font:inherit;cursor:pointer}
+.layout{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{
+  width:var(--sidebar);
+  background:#fff;
+  border-right:1px solid var(--border);
+  padding:25px 17px;
+  position:fixed;
+  inset:0 auto 0 0;
+  z-index:10;
+  display:flex;
+  flex-direction:column;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:0 10px 28px;
+}
+.brand-icon{
+  width:43px;height:43px;
+  border-radius:13px;
+  display:grid;place-items:center;
+  color:white;font-weight:800;
+  font-size:19px;
+  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+}
+.brand h2{font-size:18px;margin:0}
+.brand small{color:var(--muted);font-size:11px}
+.menu-label{
+  font-size:10px;
+  font-weight:700;
+  color:#94a3b8;
+  letter-spacing:1.3px;
+  padding:17px 12px 9px;
+}
+.nav-item{
+  width:100%;
+  border:0;
+  background:transparent;
+  color:#64748b;
+  padding:12px 13px;
+  border-radius:10px;
+  text-align:left;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-size:13px;
+  margin:2px 0;
+  transition:.2s;
+}
+.nav-item:hover,.nav-item.active{
+  color:var(--primary-dark);
+  background:#e9f8f6;
+  font-weight:700;
+}
+.nav-icon{font-size:17px;width:22px;text-align:center}
+.sidebar-bottom{
+  margin-top:auto;
+  border-top:1px solid var(--border);
+  padding-top:17px;
+}
+.admin-profile{
+  display:flex;align-items:center;gap:10px;
+  padding:10px;
+}
+.avatar{
+  width:37px;height:37px;border-radius:50%;
+  display:grid;place-items:center;
+  background:#ffedd5;color:#c2410c;font-weight:800;
+}
+.admin-profile strong{font-size:12px}
+.admin-profile small{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+
+/* MAIN */
+.main{
+  margin-left:var(--sidebar);
+  width:calc(100% - var(--sidebar));
+  min-width:0;
+}
+.topbar{
+  height:75px;
+  background:#fff;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 32px;
+  position:sticky;top:0;z-index:5;
+}
+.topbar h2{font-size:17px;margin:0}
+.topbar small{color:var(--muted);font-size:11px}
+.top-actions{display:flex;align-items:center;gap:12px}
+.status{
+  background:#e9f8f6;
+  color:var(--primary-dark);
+  padding:8px 12px;
+  border-radius:30px;
+  font-size:11px;font-weight:700;
+}
+.content{padding:30px;max-width:1500px;margin:auto}
+.welcome{
+  display:flex;justify-content:space-between;
+  align-items:center;gap:15px;flex-wrap:wrap;
+  margin-bottom:25px;
+}
+.welcome h1{font-size:24px;margin:0 0 7px}
+.welcome p{margin:0;color:var(--muted);font-size:13px}
+.date-box{
+  background:#fff;border:1px solid var(--border);
+  padding:12px 16px;border-radius:12px;
+  font-size:12px;color:var(--muted);
+}
+
+/* CARDS */
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:17px;
+}
+.stat-card{
+  background:#fff;border:1px solid var(--border);
+  border-radius:15px;padding:20px;
+  min-width:0;
+}
+.stat-head{
+  display:flex;justify-content:space-between;
+  align-items:center;margin-bottom:18px;
+}
+.stat-icon{
+  width:40px;height:40px;border-radius:12px;
+  display:grid;place-items:center;font-size:19px;
+}
+.teal{background:#e0f7f4;color:#0d9488}
+.orange{background:#fff0e5;color:#ea580c}
+.blue{background:#eaf2ff;color:#2563eb}
+.purple{background:#f2eafe;color:#9333ea}
+.stat-card p{font-size:12px;color:var(--muted);margin:0 0 9px}
+.stat-card h2{font-size:25px;margin:0;font-weight:750}
+.stat-card small{font-size:10px;color:#94a3b8}
+
+/* SECTIONS */
+.section-grid{
+  display:grid;
+  grid-template-columns:1.4fr 1fr;
+  gap:18px;margin-top:22px;
+}
+.panel{
+  background:#fff;border:1px solid var(--border);
+  border-radius:15px;padding:21px;
+  min-width:0;
+}
+.panel-header{
+  display:flex;justify-content:space-between;
+  align-items:center;gap:10px;margin-bottom:18px;
+}
+.panel-header h3{font-size:14px;margin:0}
+.panel-header small{font-size:11px;color:var(--muted)}
+.empty{
+  min-height:175px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;color:var(--muted);
+  font-size:12px;gap:10px;
+}
+.empty-icon{font-size:32px;opacity:.65}
+.quick-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:11px;
+}
+.quick{
+  background:#f8fafc;border:1px solid var(--border);
+  border-radius:12px;padding:15px;
+  text-align:left;color:var(--text);
+}
+.quick:hover{border-color:var(--primary);background:#f0fdfa}
+.quick span{font-size:21px}
+.quick strong{display:block;font-size:12px;margin-top:9px}
+.quick small{font-size:10px;color:var(--muted)}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:12px}
+th{
+  text-align:left;color:var(--muted);
+  background:#f8fafc;font-weight:600;
+  padding:12px;
+}
+td{padding:13px 12px;border-bottom:1px solid var(--border)}
+.footer{
+  text-align:center;color:#94a3b8;
+  font-size:10px;padding:30px 10px;
+}
+.page{display:none}
+.page.active{display:block}
+.mobile-toggle{display:none}
+
+/* RESPONSIVE */
+@media(max-width:1050px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .section-grid{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .sidebar{
+    transform:translateX(-100%);
+    transition:.25s;
+    box-shadow:5px 0 25px #0001;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0;width:100%}
+  .topbar{padding:0 16px;height:65px}
+  .mobile-toggle{display:block;border:0;background:#e9f8f6;padding:9px 12px;border-radius:9px}
+  .content{padding:20px 15px}
+  .welcome h1{font-size:20px}
+  .stats{gap:10px}
+  .stat-card{padding:14px}
+  .stat-card h2{font-size:21px}
+  .stat-card p{font-size:11px}
+  .date-box{width:100%}
+}
+</style>
+</head>
+
+<body>
+<div class="layout">
+
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="brand-icon">SG</div>
+    <div>
+      <h2>SIAP GURU</h2>
+      <small>SMKN 1 WAJO</small>
+    </div>
+  </div>
+
+  <div class="menu-label">MENU UTAMA</div>
+  <button class="nav-item active" data-page="dashboard">
+    <span class="nav-icon">▦</span> Dashboard
+  </button>
+  <button class="nav-item" data-page="guru">
+    <span class="nav-icon">♙</span> Data Guru
+  </button>
+  <button class="nav-item" data-page="pendaftaran">
+    <span class="nav-icon">☷</span> Persetujuan Guru
+  </button>
+
+  <div class="menu-label">PRESENSI</div>
+  <button class="nav-item" data-page="monitoring">
+    <span class="nav-icon">◷</span> Monitoring Presensi
+  </button>
+  <button class="nav-item" data-page="laporan">
+    <span class="nav-icon">▤</span> Laporan Presensi
+  </button>
+
+  <div class="menu-label">LAYANAN GURU</div>
+  <button class="nav-item" data-page="izin">
+    <span class="nav-icon">✎</span> Izin & Cuti
+  </button>
+
+  <div class="menu-label">PENGATURAN</div>
+  <button class="nav-item" data-page="pengaturan">
+    <span class="nav-icon">⚙</span> Pengaturan Sistem
+  </button>
+
+  <div class="sidebar-bottom">
+    <div class="admin-profile">
+      <div class="avatar">I</div>
+      <div>
+        <strong>Ilham</strong>
+        <small>Administrator</small>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="mobile-toggle" id="toggleMenu">☰</button>
+      <div>
+        <h2 id="topTitle">Dashboard</h2>
+        <small>Panel Administrator SIAP GURU</small>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span class="status">● Antarmuka awal</span>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <section class="page active" id="dashboard">
+      <div class="welcome">
+        <div>
+          <h1>Selamat Datang, Ilham! 👋</h1>
+          <p>Ringkasan pengelolaan presensi guru SMKN 1 WAJO.</p>
+        </div>
+        <div class="date-box" id="today">Memuat tanggal...</div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-head">
+            <div class="stat-icon teal">♙</div>
+            <small>DATA GURU</small>
+          </div>
+          <p>Total Guru Terdaftar</p>
+          <h2>—</h2>
+          <small>Menunggu koneksi database</small>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <div class="stat-icon orange">📍</div>
+            <small>DATANG</small>
+          </div>
+          <p>Presensi Kedatangan</p>
+          <h2>—</h2>
+          <small>Data belum tersedia</small>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <div class="stat-icon blue">🏁</div>
+            <small>PULANG</small>
+          </div>
+          <p>Presensi Kepulangan</p>
+          <h2>—</h2>
+          <small>Data belum tersedia</small>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <div class="stat-icon purple">☷</div>
+            <small>PENDAFTARAN</small>
+          </div>
+          <p>Menunggu Persetujuan</p>
+          <h2>—</h2>
+          <small>Data belum tersedia</small>
+        </div>
+      </div>
+
+      <div class="section-grid">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Monitoring Presensi Hari Ini</h3>
+            <small>DATANG & PULANG</small>
+          </div>
+          <div class="empty">
+            <div class="empty-icon">📊</div>
+            <strong>Belum terhubung dengan database</strong>
+            <span>Data presensi akan tampil setelah integrasi API selesai.</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Akses Cepat</h3>
+            <small>MENU ADMIN</small>
+          </div>
+          <div class="quick-grid">
+            <button class="quick" data-target="guru">
+              <span>♙</span>
+              <strong>Data Guru</strong>
+              <small>Kelola pengguna</small>
+            </button>
+            <button class="quick" data-target="pendaftaran">
+              <span>☷</span>
+              <strong>Pendaftaran</strong>
+              <small>Persetujuan guru</small>
+            </button>
+            <button class="quick" data-target="monitoring">
+              <span>◷</span>
+              <strong>Presensi</strong>
+              <small>Monitoring harian</small>
+            </button>
+            <button class="quick" data-target="laporan">
+              <span>▤</span>
+              <strong>Laporan</strong>
+              <small>Rekap presensi</small>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:20px">
+        <div class="panel-header">
+          <h3>Aktivitas Terbaru</h3>
+          <small>LOG SISTEM</small>
+        </div>
+        <div class="empty" style="min-height:110px">
+          <div class="empty-icon">🔔</div>
+          <strong>Belum ada aktivitas untuk ditampilkan</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="guru">
+      <div class="welcome">
+        <div>
+          <h1>Data Guru</h1>
+          <p>Pengelolaan data pengguna SIAP GURU.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <h3>Daftar Guru</h3>
+          <small>DATABASE BELUM TERHUBUNG</small>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>No.</th><th>Nama Guru</th><th>NIP</th>
+              <th>Status Kepegawaian</th><th>Status Akun</th>
+            </tr></thead>
+            <tbody><tr><td colspan="5" style="text-align:center;padding:35px;color:#64748b">
+              Data guru akan ditampilkan setelah integrasi API.
+            </td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="pendaftaran">
+      <div class="welcome">
+        <div>
+          <h1>Persetujuan Guru</h1>
+          <p>Verifikasi pendaftaran akun guru baru.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="empty">
+          <div class="empty-icon">☷</div>
+          <strong>Belum terhubung dengan database</strong>
+          <span>Daftar pendaftaran yang berstatus PENDING akan tampil di sini.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="monitoring">
+      <div class="welcome">
+        <div>
+          <h1>Monitoring Presensi</h1>
+          <p>Pemantauan kejadian DATANG dan PULANG guru.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <h3>Presensi Harian</h3>
+          <small>DATANG & PULANG</small>
+        </div>
+        <div class="empty">
+          <div class="empty-icon">◷</div>
+          <strong>Data presensi belum tersedia</strong>
+          <span>Informasi akan diambil langsung dari database D1.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="laporan">
+      <div class="welcome">
+        <div>
+          <h1>Laporan Presensi</h1>
+          <p>Rekapitulasi presensi guru berdasarkan periode.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="empty">
+          <div class="empty-icon">▤</div>
+          <strong>Modul laporan belum diaktifkan</strong>
+          <span>Fitur rekap dan unduh laporan akan dibuat pada tahap berikutnya.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="izin">
+      <div class="welcome">
+        <div>
+          <h1>Izin & Cuti</h1>
+          <p>Pengelolaan permohonan izin dan cuti guru.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="empty">
+          <div class="empty-icon">✎</div>
+          <strong>Belum ada data permohonan</strong>
+          <span>Data akan muncul setelah modul izin dan cuti terintegrasi.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="pengaturan">
+      <div class="welcome">
+        <div>
+          <h1>Pengaturan Sistem</h1>
+          <p>Konfigurasi dasar presensi SMKN 1 WAJO.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:14px">Informasi Sekolah</h3>
+        <p style="font-size:13px;color:#64748b">Nama sekolah: SMKN 1 WAJO</p>
+        <p style="font-size:13px;color:#64748b">Zona waktu: Asia/Makassar</p>
+        <p style="font-size:13px;color:#64748b">Jam DATANG: 07:30</p>
+        <p style="font-size:13px;color:#64748b">Jam PULANG: 15:30</p>
+        <p style="font-size:11px;color:#94a3b8">
+          Pengaturan ini masih bersifat informasi tampilan. Perubahan konfigurasi akan diaktifkan melalui API.
+        </p>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="footer">
+    © 2026 SIAP GURU · SMKN 1 WAJO · Sistem Informasi Absensi dan Presensi Guru
+  </footer>
+</main>
+</div>
+
+<script>
+const titles={
+  dashboard:"Dashboard",
+  guru:"Data Guru",
+  pendaftaran:"Persetujuan Guru",
+  monitoring:"Monitoring Presensi",
+  laporan:"Laporan Presensi",
+  izin:"Izin & Cuti",
+  pengaturan:"Pengaturan Sistem"
+};
+
+function showPage(page){
+  document.querySelectorAll(".page").forEach(el=>{
+    el.classList.toggle("active",el.id===page);
+  });
+  document.querySelectorAll(".nav-item").forEach(el=>{
+    el.classList.toggle("active",el.dataset.page===page);
+  });
+  document.getElementById("topTitle").textContent=titles[page]||"Dashboard";
+  document.getElementById("sidebar").classList.remove("open");
+}
+
+document.querySelectorAll(".nav-item").forEach(btn=>{
+  btn.addEventListener("click",()=>showPage(btn.dataset.page));
+});
+
+document.querySelectorAll(".quick").forEach(btn=>{
+  btn.addEventListener("click",()=>showPage(btn.dataset.target));
+});
+
+document.getElementById("toggleMenu").addEventListener("click",()=>{
+  document.getElementById("sidebar").classList.toggle("open");
+});
+
+const now=new Date();
+document.getElementById("today").textContent=
+  now.toLocaleDateString("id-ID",{
+    weekday:"long",day:"numeric",month:"long",year:"numeric"
+  });
+</script>
+</body>
+</html>
