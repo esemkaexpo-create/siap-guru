@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0D9488">
+  <title>SIAP GURU | SMKN 1 WAJO</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      background:#F1F5F9;
+      color:#1E293B;
+    }
+    .header{
+      background:linear-gradient(135deg,#0D9488,#0F766E);
+      color:white;
+      padding:28px 22px 38px;
+      border-radius:0 0 26px 26px;
+    }
+    .brand{font-size:13px;opacity:.85}
+    h1{font-size:27px;margin:12px 0 6px}
+    .subtitle{font-size:13px;opacity:.85}
+    .container{padding:20px;max-width:650px;margin:auto}
+    .welcome{
+      background:white;padding:20px;border-radius:18px;
+      margin-top:-12px;box-shadow:0 5px 20px #0f172a0c;
+    }
+    .welcome h2{margin:0 0 7px;font-size:19px}
+    .welcome p{margin:0;color:#64748B;font-size:13px}
+    .section-title{font-size:16px;margin:25px 0 14px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+    .menu{
+      background:white;border-radius:16px;padding:19px 14px;
+      border:1px solid #E2E8F0;min-height:112px;
+    }
+    .symbol{font-size:25px;margin-bottom:12px}
+    .menu strong{font-size:14px}
+    .menu small{display:block;color:#64748B;margin-top:6px}
+    .notice{
+      background:#FFF7ED;border:1px solid #FED7AA;
+      border-radius:15px;padding:16px;margin-top:22px;
+      color:#9A3412;font-size:13px;line-height:1.6;
+    }
+    footer{text-align:center;color:#94A3B8;font-size:11px;padding:28px}
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="brand">SMKN 1 WAJO · PRESENSI DIGITAL</div>
+    <h1>SIAP GURU</h1>
+    <div class="subtitle">Sistem Informasi Absensi dan Presensi Guru</div>
+  </header>
+
+  <main class="container">
+    <section class="welcome">
+      <h2 id="greeting">Selamat Datang!</h2>
+      <p id="userInfo">Portal layanan presensi guru SMKN 1 WAJO.</p>
+    </section>
+
+    <h3 class="section-title">Menu Utama</h3>
+    <section class="grid">
+      <div class="menu">
+        <div class="symbol">📍</div>
+        <strong>DATANG</strong>
+        <small>Presensi kedatangan</small>
+      </div>
+      <div class="menu">
+        <div class="symbol">🏁</div>
+        <strong>PULANG</strong>
+        <small>Presensi kepulangan</small>
+      </div>
+      <div class="menu">
+        <div class="symbol">📅</div>
+        <strong>Riwayat</strong>
+        <small>Riwayat presensi</small>
+      </div>
+      <div class="menu">
+        <div class="symbol">📝</div>
+        <strong>Izin & Cuti</strong>
+        <small>Pengajuan izin dan cuti</small>
+      </div>
+    </section>
+
+    <div class="notice">
+      <strong>Informasi Sistem</strong><br>
+      SIAP GURU sedang dalam tahap pengembangan.
+      Fitur presensi akan diaktifkan setelah integrasi sistem selesai.
+    </div>
+  </main>
+
+  <footer>© 2026 SIAP GURU · SMKN 1 WAJO</footer>
+
+  <script>
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      const user = tg.initDataUnsafe?.user;
+      if (user) {
+        document.getElementById("greeting").textContent =
+          "Selamat Datang, " + (user.first_name || "Guru") + "!";
+      }
+    }
+  </script>
+</body>
+</html>
