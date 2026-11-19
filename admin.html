@@ -286,6 +286,9 @@ td{padding:13px 12px;border-bottom:1px solid var(--border)}
   <button class="nav-item" data-page="laporan">
     <span class="nav-icon">▤</span> Laporan Presensi
   </button>
+  <button class="nav-item" data-page="analisis">
+    <span class="nav-icon">▥</span> Analisis Presensi
+  </button>
 
   <div class="menu-label">LAYANAN GURU</div>
   <button class="nav-item" data-page="izin">
@@ -508,6 +511,8 @@ td{padding:13px 12px;border-bottom:1px solid var(--border)}
       </div>
     </section>
 
+    <section class="page" id="analisis"></section>
+
     <section class="page" id="izin">
       <div class="welcome">
         <div>
@@ -557,7 +562,7 @@ const API_BASE = "https://presensi-guru-api.esemkaexpo.workers.dev";
 const titles = {
   dashboard:"Dashboard", guru:"Data Guru", pendaftaran:"Persetujuan Guru",
   monitoring:"Monitoring Presensi", laporan:"Laporan Presensi",
-  izin:"Izin & Cuti", pengaturan:"Pengaturan Sistem"
+  analisis:"Analisis Presensi", izin:"Izin & Cuti", pengaturan:"Pengaturan Sistem"
 };
 document.documentElement.style.visibility = "hidden";
 let adminUser = null;
@@ -645,7 +650,7 @@ function showPage(page){
   document.querySelectorAll(".page").forEach(el=>el.classList.toggle("active",el.id===page));
   document.querySelectorAll(".nav-item").forEach(el=>el.classList.toggle("active",el.dataset.page===page));
   $("#topTitle").textContent=titles[page]||"Dashboard"; $("#sidebar").classList.remove("open");
-  const loaders={dashboard:loadDashboard,guru:loadTeachers,pendaftaran:loadPending,monitoring:loadMonitoring,laporan:loadReports,izin:loadLeaves,pengaturan:loadSettings};
+  const loaders={dashboard:loadDashboard,guru:loadTeachers,pendaftaran:loadPending,monitoring:loadMonitoring,laporan:loadReports,analisis:loadAnalytics,izin:loadLeaves,pengaturan:loadSettings};
   if(loaders[page]) loaders[page]().catch(showError);
 }
 function showError(e){
@@ -674,45 +679,25 @@ async function loadDashboard(){
   const cards=[["Total Guru",teachers.total||0,"♙","teal"],["Hadir Datang",monitor.total_hadir||0,"📍","orange"],["Belum Absen Datang",monitor.total_belum_datang||0,"◷","blue"],["Menunggu Persetujuan",(pending.total||0)+(leaves.total||0),"☷","purple"]];
   $(".stats").innerHTML=cards.map(c=>`<div class="stat-card"><div class="stat-head"><div class="stat-icon ${c[3]}">${c[2]}</div><small>SIAP GURU</small></div><p>${c[0]}</p><h2>${c[1]}</h2><small>Data terkini dari database</small></div>`).join("");
   const rows=(monitor.data||[]).slice(0,8).map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.teacher_name)}</td><td>${statusPill(x.status_datang)}</td><td>${fmtTime(x.waktu_datang)}</td><td>${statusPill(x.status_pulang)}</td><td>${fmtTime(x.waktu_pulang)}</td></tr>`).join("");
-  $(".section-grid").innerHTML=panel("Monitoring Presensi Hari Ini",fmtDate(date),table(["No","Nama Guru","Datang","Waktu","Pulang","Waktu"],rows,"Belum ada data guru atau presensi."))+panel("Akses Cepat","MENU ADMIN",`<div class="quick-grid"><button class="quick" data-target="guru"><span>♙</span><strong>Data Guru</strong><small>Kelola pengguna</small></button><button class="quick" data-target="pendaftaran"><span>☷</span><strong>Pendaftaran</strong><small>Persetujuan guru</small></button><button class="quick" data-target="monitoring"><span>◷</span><strong>Presensi</strong><small>Monitoring harian</small></button><button class="quick" data-target="laporan"><span>▤</span><strong>Laporan</strong><small>Rekap presensi</small></button></div>`);
+  $(".section-grid").innerHTML=panel("Monitoring Presensi Hari Ini",fmtDate(date),table(["No","Nama Guru","Datang","Waktu","Pulang","Waktu"],rows,"Belum ada data guru atau presensi."))+panel("Akses Cepat","MENU ADMIN",`<div class="quick-grid"><button class="quick" data-target="guru"><span>♙</span><strong>Data Guru</strong><small>Kelola pengguna</small></button><button class="quick" data-target="pendaftaran"><span>☷</span><strong>Pendaftaran</strong><small>Persetujuan guru</small></button><button class="quick" data-target="monitoring"><span>◷</span><strong>Presensi</strong><small>Monitoring harian</small></button><button class="quick" data-target="laporan"><span>▤</span><strong>Laporan</strong><small>Rekap presensi</small></button><button class="quick" data-target="analisis"><span>▥</span><strong>Analisis</strong><small>Diagram presensi</small></button></div>`);
   $(".quick").parentElement.querySelectorAll("[data-target]").forEach(b=>b.onclick=()=>showPage(b.dataset.target));
   $("#dashboard .panel:last-child").innerHTML=panel("Ringkasan Layanan","PENDING",`<p style="font-size:13px;color:#64748b">Pendaftaran guru menunggu: <b>${pending.total||0}</b> · Pengajuan izin menunggu: <b>${leaves.total||0}</b> · Belum absen pulang: <b>${monitor.total_belum_pulang||0}</b></p>`);
 }
 async function loadTeachers(){
-  setPage("guru",`<div class="welcome"><div><h1>Data Guru</h1><p>Pengelolaan akun guru SIAP GURU.</p></div><button class="btn-primary" id="refreshTeachers">Muat Ulang</button></div>
-    <div class="panel" style="margin-bottom:18px"><div class="panel-header"><h3>Tambah Akun Guru</h3><small>Pendaftaran melalui admin</small></div>
-      <form id="teacherCreateForm" class="settings-grid">
-        ${field("Nama Lengkap","full_name","")}
-        ${field("Telegram ID","telegram_id","","text")}
-        ${field("NIP (opsional)","nip","")}
-        ${field("Jabatan","position","")}
-        ${field("Status Kepegawaian","employment_status","")}
-        <div style="grid-column:1/-1"><button class="btn-primary" type="submit">Simpan Akun Guru</button><span id="teacherCreateMessage" style="font-size:12px;color:#64748b;margin-left:10px"></span></div>
-      </form>
-    </div>
+  setPage("guru",`<div class="welcome"><div><h1>Data Guru</h1><p>Data guru yang mendaftar melalui bot SIAP GURU.</p></div><button class="btn-primary" id="refreshTeachers">Muat Ulang</button></div>
     <div class="panel"><div class="panel-header"><h3>Daftar Guru</h3><small id="teacherCount">Memuat...</small></div><div id="teacherTable"></div></div>`);
   $("#refreshTeachers").onclick=loadTeachers;
-  $("#teacherCreateForm").onsubmit=createTeacher;
-  const r=await api("/admin/teachers?status=ALL"); $("#teacherCount").textContent=`${r.total||0} akun`;
-  const rows=(r.data||[]).map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.full_name)}</td><td>${esc(x.nip||"—")}</td><td>${esc(x.employment_status||"—")}</td><td>${statusPill(x.approval_status)}</td></tr>`).join("");
-  $("#teacherTable").innerHTML=table(["No","Nama Guru","NIP","Status Kepegawaian","Status Akun"],rows);
-}
-async function createTeacher(e){
-  e.preventDefault();
-  const f=e.currentTarget, data=Object.fromEntries(new FormData(f).entries());
-  if(!data.full_name.trim()||!data.telegram_id.trim()){alert("Nama lengkap dan Telegram ID wajib diisi.");return;}
-  try{
-    const r=await api("/admin/teachers",{method:"POST",body:JSON.stringify(data)});
-    $("#teacherCreateMessage").textContent=r.message||"Akun berhasil dibuat.";
-    f.reset(); await loadTeachers();
-  }catch(err){alert(err.message);}
+  const r=await api("/admin/teachers?status=ALL");
+  $("#teacherCount").textContent=`${r.total||0} akun`;
+  const rows=(r.data||[]).map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.full_name)}</td><td>${esc(x.employment_status==="NON_ASN"?"NON ASN":x.employment_status||"—")}</td><td>${esc(x.nip||"—")}</td><td>${esc(x.position||"—")}</td><td>${statusPill(x.approval_status)}</td></tr>`).join("");
+  $("#teacherTable").innerHTML=table(["No","NAMA","STATUS","NIP","JABATAN","Status Akun"],rows,"Belum ada guru terdaftar.");
 }
 async function loadPending(){
   setPage("pendaftaran",`<div class="welcome"><div><h1>Persetujuan Guru</h1><p>Verifikasi pendaftaran akun guru baru.</p></div><button class="btn-primary" id="refreshPending">Muat Ulang</button></div><div class="panel"><div class="panel-header"><h3>Pendaftaran Menunggu</h3><small id="pendingCount"></small></div><div id="pendingTable"></div></div>`);
   $("#refreshPending").onclick=loadPending;
   const r=await api("/admin/teachers?status=PENDING"); $("#pendingCount").textContent=`${r.total||0} pendaftaran`;
-  const rows=(r.data||[]).map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.full_name)}</td><td>${esc(x.telegram_id)}</td><td>${statusPill(x.approval_status)}</td><td><button class="btn-primary" data-approve="${x.id}">Setujui</button> <button class="btn-danger" data-reject="${x.id}">Tolak</button></td></tr>`).join("");
-  $("#pendingTable").innerHTML=table(["No","Nama Guru","Telegram ID","Status","Tindakan"],rows,"Tidak ada pendaftaran yang menunggu.");
+  const rows=(r.data||[]).map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.full_name)}</td><td>${esc(x.employment_status==="NON_ASN"?"NON ASN":x.employment_status||"—")}</td><td>${esc(x.nip||"—")}</td><td>${esc(x.position||"—")}</td><td>${statusPill(x.approval_status)}</td><td><button class="btn-primary" data-approve="${x.id}">Setujui</button> <button class="btn-danger" data-reject="${x.id}">Tolak</button></td></tr>`).join("");
+  $("#pendingTable").innerHTML=table(["No","NAMA","STATUS","NIP","JABATAN","Status","Tindakan"],rows,"Tidak ada pendaftaran yang menunggu.");
   $("#pendingTable").querySelectorAll("[data-approve]").forEach(b=>b.onclick=()=>reviewTeacher(b.dataset.approve,"APPROVE"));
   $("#pendingTable").querySelectorAll("[data-reject]").forEach(b=>b.onclick=()=>reviewTeacher(b.dataset.reject,"REJECT"));
 }
@@ -736,16 +721,59 @@ async function renderMonitoring(){
 }
 async function loadReports(){
   const d=todayWITA();
-  setPage("laporan",`<div class="welcome"><div><h1>Laporan Presensi</h1><p>Rekapitulasi presensi guru. Maksimal rentang 31 hari.</p></div><div>${dateInput("reportFrom",d)} ${dateInput("reportTo",d)} <button class="btn-primary" id="runReport">Tampilkan</button></div></div><div class="panel"><div class="panel-header"><h3>Hasil Laporan</h3><button class="btn-primary" id="exportReport">Unduh CSV</button></div><div id="reportMeta"></div><div id="reportTable"></div></div>`);
+  setPage("laporan",`<div class="welcome"><div><h1>Laporan Presensi</h1><p>Rekapitulasi presensi guru berdasarkan periode. Maksimal rentang 31 hari.</p></div><div>${dateInput("reportFrom",d)} ${dateInput("reportTo",d)} <button class="btn-primary" id="runReport">Tampilkan</button></div></div><div id="reportSummary" class="stats"></div><div class="panel"><div class="panel-header"><h3>Ringkasan Rekapitulasi</h3><small>BERDASARKAN DATA D1</small></div><div id="reportCharts" class="section-grid"></div></div><div class="panel"><div class="panel-header"><h3>Hasil Laporan</h3><button class="btn-primary" id="exportReport">Unduh CSV</button></div><div id="reportMeta"></div><div id="reportTable"></div></div>`);
   $("#runReport").onclick=renderReport; $("#exportReport").onclick=exportReport; await renderReport();
 }
 let reportRows=[];
+function countStatus(rows,key,status){return rows.filter(x=>x[key]===status).length;}
+function barChart(title, labels, values, color="#0d9488"){
+  const max=Math.max(1,...values);
+  const bars=labels.map((label,i)=>`<div style="display:flex;align-items:center;gap:10px;margin:10px 0"><div style="width:115px;flex-shrink:0;font-size:12px;color:#475569">${esc(label)}</div><div style="flex:1;background:#eef2f7;border-radius:20px;height:13px;overflow:hidden"><div style="height:100%;width:${Math.max(values[i]===0?0:3,values[i]/max*100)}%;background:${color};border-radius:20px"></div></div><b style="width:35px;text-align:right;font-size:12px">${values[i]}</b></div>`).join("");
+  return `<div class="panel"><div class="panel-header"><h3>${title}</h3><small>JUMLAH KEJADIAN</small></div><div style="padding:14px 18px">${bars||'<p style="color:#64748b;font-size:13px">Belum ada data.</p>'}</div></div>`;
+}
+function buildReportVisuals(rows, target){
+  const work=rows.filter(x=>x.is_work_day&&!x.is_holiday);
+  const datangHadir=countStatus(work,"status_datang","HADIR"), terlambat=countStatus(work,"status_datang","TERLAMBAT"), noDatang=countStatus(work,"status_datang","TIDAK ABSEN DATANG");
+  const pulangHadir=countStatus(work,"status_pulang","HADIR"), cepat=countStatus(work,"status_pulang","CEPAT PULANG"), noPulang=countStatus(work,"status_pulang","TIDAK ABSEN PULANG");
+  const cards=[["Hadir Datang",datangHadir,"#0d9488"],["Terlambat",terlambat,"#d97706"],["Tidak Absen Datang",noDatang,"#dc2626"],["Hadir Pulang",pulangHadir,"#2563eb"]];
+  $(target+"Summary").innerHTML=cards.map(c=>`<div class="stat-card"><div class="stat-head"><small>REKAP PRESENSI</small></div><p>${c[0]}</p><h2>${c[1]}</h2><small>Dari data hari kerja</small></div>`).join("");
+  const daily=new Map();
+  for(const r of work){if(!daily.has(r.date))daily.set(r.date,{hadir:0,terlambat:0,tidak:0});const x=daily.get(r.date);if(r.status_datang==="HADIR")x.hadir++;else if(r.status_datang==="TERLAMBAT")x.terlambat++;else if(r.status_datang==="TIDAK ABSEN DATANG")x.tidak++;}
+  const dailyRows=[...daily.entries()].sort((a,b)=>a[0].localeCompare(b[0]));
+  const trend=`<div class="panel"><div class="panel-header"><h3>Tren Kedatangan Harian</h3><small>GRAFIK PER TANGGAL</small></div><div style="padding:16px;overflow-x:auto"><div style="display:flex;align-items:flex-end;gap:9px;min-height:180px;min-width:${Math.max(100,dailyRows.length*48)}px;border-bottom:1px solid #e2e8f0">${dailyRows.map(([date,v])=>{const total=Math.max(1,v.hadir+v.terlambat+v.tidak);return `<div title="${fmtDate(date)} · Hadir ${v.hadir} · Terlambat ${v.terlambat} · Tidak absen ${v.tidak}" style="flex:1;min-width:30px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:165px"><div style="width:70%;max-width:28px;height:${v.hadir/total*120}px;background:#0d9488;border-radius:5px 5px 0 0"></div><div style="width:70%;max-width:28px;height:${v.terlambat/total*120}px;background:#f59e0b"></div><div style="width:70%;max-width:28px;height:${v.tidak/total*120}px;background:#ef4444"></div><small style="font-size:9px;color:#64748b;margin-top:7px">${date.slice(8,10)}</small></div>`}).join("")}</div><p style="font-size:11px;color:#64748b">Warna: <span style="color:#0d9488">● Hadir</span> · <span style="color:#d97706">● Terlambat</span> · <span style="color:#dc2626">● Tidak absen datang</span></p></div></div>`;
+  const status=barChart("Analisis Status Datang",["Hadir","Terlambat","Tidak absen"],[datangHadir,terlambat,noDatang]);
+  const pulang=barChart("Analisis Status Pulang",["Hadir","Cepat pulang","Tidak absen"],[pulangHadir,cepat,noPulang],"#2563eb");
+  $(target+"Charts").innerHTML=trend+status+pulang;
+}
+async function fetchReportPeriod(from,to){
+  const r=await api(`/admin/reports/attendance?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
+  return r;
+}
 async function renderReport(){
   const from=$("#reportFrom").value,to=$("#reportTo").value;
-  const r=await api(`/admin/reports/attendance?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
-  reportRows=r.data||[]; $("#reportMeta").innerHTML=`<p style="font-size:12px;color:#64748b">${r.total_teachers} guru · ${r.total_days} hari · ${r.total_records} baris</p>`;
+  const r=await fetchReportPeriod(from,to); reportRows=r.data||[];
+  $("#reportMeta").innerHTML=`<p style="font-size:12px;color:#64748b">${r.total_teachers} guru · ${r.total_days} hari · ${r.total_records} baris · Periode ${fmtDate(from)} – ${fmtDate(to)}</p>`;
   const rows=reportRows.map((x,i)=>`<tr><td>${i+1}</td><td>${fmtDate(x.date)}</td><td>${esc(x.teacher_name)}</td><td>${statusPill(x.status_datang)}</td><td>${fmtTime(x.waktu_datang)}</td><td>${statusPill(x.status_pulang)}</td><td>${fmtTime(x.waktu_pulang)}</td></tr>`).join("");
-  $("#reportTable").innerHTML=table(["No","Tanggal","Nama Guru","Datang","Jam","Pulang","Jam"],rows);
+  $("#reportTable").innerHTML=table(["No","Tanggal","Nama Guru","Datang","Jam","Pulang","Jam"],rows,"Tidak ada data pada periode ini.");
+  buildReportVisuals(reportRows,"#report");
+}
+async function loadAnalytics(){
+  const d=todayWITA();
+  setPage("analisis",`<div class="welcome"><div><h1>Analisis Presensi</h1><p>Visualisasi tren, kedisiplinan, dan kelengkapan presensi berdasarkan data aktual.</p></div><div>${dateInput("analyticsFrom",d)} ${dateInput("analyticsTo",d)} <button class="btn-primary" id="runAnalytics">Analisis</button></div></div><div id="analyticsSummary" class="stats"></div><div id="analyticsCharts" class="section-grid"></div><div class="panel"><div class="panel-header"><h3>Rekap per Guru</h3><small>URUTAN BERDASARKAN KELENGKAPAN DATANG</small></div><div id="analyticsTeachers"></div></div>`);
+  $("#runAnalytics").onclick=renderAnalytics; await renderAnalytics();
+}
+async function renderAnalytics(){
+  const from=$("#analyticsFrom").value,to=$("#analyticsTo").value;
+  const r=await fetchReportPeriod(from,to), rows=r.data||[]; buildReportVisuals(rows,"#analytics");
+  const work=rows.filter(x=>x.is_work_day&&!x.is_holiday), ids=[...new Set(work.map(x=>x.teacher_id))];
+  const complete=work.filter(x=>x.status_datang==="HADIR"||x.status_datang==="TERLAMBAT").length;
+  const late=work.filter(x=>x.status_datang==="TERLAMBAT").length;
+  const summary=[ ["Total Guru",r.total_teachers], ["Hari Kerja",new Set(work.map(x=>x.date)).size], ["Kehadiran Tercatat",complete], ["Keterlambatan",late] ];
+  $("#analyticsSummary").innerHTML=summary.map(x=>`<div class="stat-card"><div class="stat-head"><small>ANALISIS PERIODE</small></div><p>${x[0]}</p><h2>${x[1]}</h2><small>${fmtDate(from)} – ${fmtDate(to)}</small></div>`).join("");
+  const byTeacher=new Map(); for(const x of work){if(!byTeacher.has(x.teacher_id))byTeacher.set(x.teacher_id,{name:x.teacher_name,hadir:0,terlambat:0,tidak:0,pulang:0});const t=byTeacher.get(x.teacher_id);if(x.status_datang==="HADIR")t.hadir++;else if(x.status_datang==="TERLAMBAT")t.terlambat++;else if(x.status_datang==="TIDAK ABSEN DATANG")t.tidak++;if(x.status_pulang==="HADIR")t.pulang++;}
+  const sorted=[...byTeacher.values()].sort((a,b)=>(b.hadir+b.terlambat)-(a.hadir+a.terlambat)||a.name.localeCompare(b.name));
+  const trs=sorted.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.name)}</td><td>${x.hadir}</td><td>${x.terlambat}</td><td>${x.tidak}</td><td>${x.pulang}</td></tr>`).join("");
+  $("#analyticsTeachers").innerHTML=table(["No","Nama Guru","Hadir","Terlambat","Tidak Absen","Pulang"],trs,"Belum ada data guru pada periode ini.");
 }
 function exportReport(){
   if(!reportRows.length){alert("Tidak ada data untuk diunduh.");return;}
