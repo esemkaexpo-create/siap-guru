@@ -1,0 +1,822 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d9488">
+<title>Dashboard Admin | SIAP GURU</title>
+
+<style>
+:root{
+  --primary:#0d9488;
+  --primary-dark:#0f766e;
+  --orange:#f97316;
+  --bg:#f5f8fa;
+  --white:#ffffff;
+  --text:#1e293b;
+  --muted:#64748b;
+  --border:#e5edf0;
+  --sidebar:260px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+button{font:inherit;cursor:pointer}
+.layout{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{
+  width:var(--sidebar);
+  background:#fff;
+  border-right:1px solid var(--border);
+  padding:25px 17px;
+  position:fixed;
+  inset:0 auto 0 0;
+  z-index:10;
+  display:flex;
+  flex-direction:column;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:0 10px 28px;
+}
+.brand-icon{
+  width:43px;height:43px;
+  border-radius:13px;
+  display:grid;place-items:center;
+  color:white;font-weight:800;
+  font-size:19px;
+  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+}
+.brand h2{font-size:18px;margin:0}
+.brand small{color:var(--muted);font-size:11px}
+.menu-label{
+  font-size:10px;
+  font-weight:700;
+  color:#94a3b8;
+  letter-spacing:1.3px;
+  padding:17px 12px 9px;
+}
+.nav-item{
+  width:100%;
+  border:0;
+  background:transparent;
+  color:#64748b;
+  padding:12px 13px;
+  border-radius:10px;
+  text-align:left;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-size:13px;
+  margin:2px 0;
+  transition:.2s;
+}
+.nav-item:hover,.nav-item.active{
+  color:var(--primary-dark);
+  background:#e9f8f6;
+  font-weight:700;
+}
+.nav-icon{font-size:17px;width:22px;text-align:center}
+.sidebar-bottom{
+  margin-top:auto;
+  border-top:1px solid var(--border);
+  padding-top:17px;
+}
+.admin-profile{
+  display:flex;align-items:center;gap:10px;
+  padding:10px;
+}
+.avatar{
+  width:37px;height:37px;border-radius:50%;
+  display:grid;place-items:center;
+  background:#ffedd5;color:#c2410c;font-weight:800;
+}
+.admin-profile strong{font-size:12px}
+.admin-profile small{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+
+/* MAIN */
+.main{
+  margin-left:var(--sidebar);
+  width:calc(100% - var(--sidebar));
+  min-width:0;
+}
+.topbar{
+  height:75px;
+  background:#fff;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 32px;
+  position:sticky;top:0;z-index:5;
+}
+.topbar h2{font-size:17px;margin:0}
+.topbar small{color:var(--muted);font-size:11px}
+.top-actions{display:flex;align-items:center;gap:12px}
+.status{
+  background:#e9f8f6;
+  color:var(--primary-dark);
+  padding:8px 12px;
+  border-radius:30px;
+  font-size:11px;font-weight:700;
+}
+.content{padding:30px;max-width:1500px;margin:auto}
+.welcome{
+  display:flex;justify-content:space-between;
+  align-items:center;gap:15px;flex-wrap:wrap;
+  margin-bottom:25px;
+}
+.welcome h1{font-size:24px;margin:0 0 7px}
+.welcome p{margin:0;color:var(--muted);font-size:13px}
+.date-box{
+  background:#fff;border:1px solid var(--border);
+  padding:12px 16px;border-radius:12px;
+  font-size:12px;color:var(--muted);
+}
+
+/* CARDS */
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:17px;
+}
+.stat-card{
+  background:#fff;border:1px solid var(--border);
+  border-radius:15px;padding:20px;
+  min-width:0;
+}
+.stat-head{
+  display:flex;justify-content:space-between;
+  align-items:center;margin-bottom:18px;
+}
+.stat-icon{
+  width:40px;height:40px;border-radius:12px;
+  display:grid;place-items:center;font-size:19px;
+}
+.teal{background:#e0f7f4;color:#0d9488}
+.orange{background:#fff0e5;color:#ea580c}
+.blue{background:#eaf2ff;color:#2563eb}
+.purple{background:#f2eafe;color:#9333ea}
+.stat-card p{font-size:12px;color:var(--muted);margin:0 0 9px}
+.stat-card h2{font-size:25px;margin:0;font-weight:750}
+.stat-card small{font-size:10px;color:#94a3b8}
+
+/* SECTIONS */
+.section-grid{
+  display:grid;
+  grid-template-columns:1.4fr 1fr;
+  gap:18px;margin-top:22px;
+}
+.panel{
+  background:#fff;border:1px solid var(--border);
+  border-radius:15px;padding:21px;
+  min-width:0;
+}
+.panel-header{
+  display:flex;justify-content:space-between;
+  align-items:center;gap:10px;margin-bottom:18px;
+}
+.panel-header h3{font-size:14px;margin:0}
+.panel-header small{font-size:11px;color:var(--muted)}
+.empty{
+  min-height:175px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;color:var(--muted);
+  font-size:12px;gap:10px;
+}
+.empty-icon{font-size:32px;opacity:.65}
+.quick-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:11px;
+}
+.quick{
+  background:#f8fafc;border:1px solid var(--border);
+  border-radius:12px;padding:15px;
+  text-align:left;color:var(--text);
+}
+.quick:hover{border-color:var(--primary);background:#f0fdfa}
+.quick span{font-size:21px}
+.quick strong{display:block;font-size:12px;margin-top:9px}
+.quick small{font-size:10px;color:var(--muted)}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:12px}
+th{
+  text-align:left;color:var(--muted);
+  background:#f8fafc;font-weight:600;
+  padding:12px;
+}
+td{padding:13px 12px;border-bottom:1px solid var(--border)}
+.footer{
+  text-align:center;color:#94a3b8;
+  font-size:10px;padding:30px 10px;
+}
+.page{display:none}
+.page.active{display:block}
+.mobile-toggle{display:none}
+
+/* RESPONSIVE */
+@media(max-width:1050px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .section-grid{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .sidebar{
+    transform:translateX(-100%);
+    transition:.25s;
+    box-shadow:5px 0 25px #0001;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0;width:100%}
+  .topbar{padding:0 16px;height:65px}
+  .mobile-toggle{display:block;border:0;background:#e9f8f6;padding:9px 12px;border-radius:9px}
+  .content{padding:20px 15px}
+  .welcome h1{font-size:20px}
+  .stats{gap:10px}
+  .stat-card{padding:14px}
+  .stat-card h2{font-size:21px}
+  .stat-card p{font-size:11px}
+  .date-box{width:100%}
+}
+
+.btn-primary,.btn-danger{border:0;border-radius:8px;padding:9px 13px;font-size:12px;font-weight:700;cursor:pointer}
+.btn-primary{background:#0d9488;color:#fff}.btn-primary:hover{background:#0f766e}
+.btn-danger{background:#fee2e2;color:#b91c1c}.btn-danger:hover{background:#fecaca}
+.settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+@media(max-width:700px){.settings-grid{grid-template-columns:1fr}}
+
+</style>
+</head>
+
+<body>
+<div class="layout">
+
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="brand-icon">SG</div>
+    <div>
+      <h2>SIAP GURU</h2>
+      <small>SMKN 1 WAJO</small>
+    </div>
+  </div>
+
+  <div class="menu-label">MENU UTAMA</div>
+  <button class="nav-item active" data-page="dashboard">
+    <span class="nav-icon">▦</span> Dashboard
+  </button>
+  <button class="nav-item" data-page="guru">
+    <span class="nav-icon">♙</span> Data Guru
+  </button>
+  <button class="nav-item" data-page="pendaftaran">
+    <span class="nav-icon">☷</span> Persetujuan Guru
+  </button>
+
+  <div class="menu-label">PRESENSI</div>
+  <button class="nav-item" data-page="monitoring">
+    <span class="nav-icon">◷</span> Monitoring Presensi
+  </button>
+  <button class="nav-item" data-page="laporan">
+    <span class="nav-icon">▤</span> Laporan Presensi
+  </button>
+
+  <div class="menu-label">LAYANAN GURU</div>
+  <button class="nav-item" data-page="izin">
+    <span class="nav-icon">✎</span> Izin & Cuti
+  </button>
+
+  <div class="menu-label">PENGATURAN</div>
+  <button class="nav-item" data-page="pengaturan">
+    <span class="nav-icon">⚙</span> Pengaturan Sistem
+  </button>
+
+  <div class="sidebar-bottom">
+    <div class="admin-profile">
+      <div class="avatar">I</div>
+      <div>
+        <strong>Ilham</strong>
+        <small>Administrator</small>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="mobile-toggle" id="toggleMenu">☰</button>
+      <div>
+        <h2 id="topTitle">Dashboard</h2>
+        <small>Panel Administrator SIAP GURU</small>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span class="status">● Antarmuka awal</span>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <section class="page active" id="dashboard">
+      <div class="welcome">
+        <div>
+          <h1>Selamat Datang, Ilham! 👋</h1>
+          <p>Ringkasan pengelolaan presensi guru SMKN 1 WAJO.</p>
+        </div>
+        <div class="date-box" id="today">Memuat tanggal...</div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-head">
+            <div class="stat-icon teal">♙</div>
+            <small>DATA GURU</small>
+          </div>
+          <p>Total Guru Terdaftar</p>
+          <h2>—</h2>
+          <small>Menunggu koneksi database</small>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <div class="stat-icon orange">📍</div>
+            <small>DATANG</small>
+          </div>
+          <p>Presensi Kedatangan</p>
+          <h2>—</h2>
+          <small>Data belum tersedia</small>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <div class="stat-icon blue">🏁</div>
+            <small>PULANG</small>
+          </div>
+          <p>Presensi Kepulangan</p>
+          <h2>—</h2>
+          <small>Data belum tersedia</small>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-head">
+            <div class="stat-icon purple">☷</div>
+            <small>PENDAFTARAN</small>
+          </div>
+          <p>Menunggu Persetujuan</p>
+          <h2>—</h2>
+          <small>Data belum tersedia</small>
+        </div>
+      </div>
+
+      <div class="section-grid">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Monitoring Presensi Hari Ini</h3>
+            <small>DATANG & PULANG</small>
+          </div>
+          <div class="empty">
+            <div class="empty-icon">📊</div>
+            <strong>Belum terhubung dengan database</strong>
+            <span>Data presensi akan tampil setelah integrasi API selesai.</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Akses Cepat</h3>
+            <small>MENU ADMIN</small>
+          </div>
+          <div class="quick-grid">
+            <button class="quick" data-target="guru">
+              <span>♙</span>
+              <strong>Data Guru</strong>
+              <small>Kelola pengguna</small>
+            </button>
+            <button class="quick" data-target="pendaftaran">
+              <span>☷</span>
+              <strong>Pendaftaran</strong>
+              <small>Persetujuan guru</small>
+            </button>
+            <button class="quick" data-target="monitoring">
+              <span>◷</span>
+              <strong>Presensi</strong>
+              <small>Monitoring harian</small>
+            </button>
+            <button class="quick" data-target="laporan">
+              <span>▤</span>
+              <strong>Laporan</strong>
+              <small>Rekap presensi</small>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:20px">
+        <div class="panel-header">
+          <h3>Aktivitas Terbaru</h3>
+          <small>LOG SISTEM</small>
+        </div>
+        <div class="empty" style="min-height:110px">
+          <div class="empty-icon">🔔</div>
+          <strong>Belum ada aktivitas untuk ditampilkan</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="guru">
+      <div class="welcome">
+        <div>
+          <h1>Data Guru</h1>
+          <p>Pengelolaan data pengguna SIAP GURU.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <h3>Daftar Guru</h3>
+          <small>DATABASE BELUM TERHUBUNG</small>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>No.</th><th>Nama Guru</th><th>NIP</th>
+              <th>Status Kepegawaian</th><th>Status Akun</th>
+            </tr></thead>
+            <tbody><tr><td colspan="5" style="text-align:center;padding:35px;color:#64748b">
+              Data guru akan ditampilkan setelah integrasi API.
+            </td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="pendaftaran">
+      <div class="welcome">
+        <div>
+          <h1>Persetujuan Guru</h1>
+          <p>Verifikasi pendaftaran akun guru baru.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="empty">
+          <div class="empty-icon">☷</div>
+          <strong>Belum terhubung dengan database</strong>
+          <span>Daftar pendaftaran yang berstatus PENDING akan tampil di sini.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="monitoring">
+      <div class="welcome">
+        <div>
+          <h1>Monitoring Presensi</h1>
+          <p>Pemantauan kejadian DATANG dan PULANG guru.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <h3>Presensi Harian</h3>
+          <small>DATANG & PULANG</small>
+        </div>
+        <div class="empty">
+          <div class="empty-icon">◷</div>
+          <strong>Data presensi belum tersedia</strong>
+          <span>Informasi akan diambil langsung dari database D1.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="laporan">
+      <div class="welcome">
+        <div>
+          <h1>Laporan Presensi</h1>
+          <p>Rekapitulasi presensi guru berdasarkan periode.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="empty">
+          <div class="empty-icon">▤</div>
+          <strong>Modul laporan belum diaktifkan</strong>
+          <span>Fitur rekap dan unduh laporan akan dibuat pada tahap berikutnya.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="izin">
+      <div class="welcome">
+        <div>
+          <h1>Izin & Cuti</h1>
+          <p>Pengelolaan permohonan izin dan cuti guru.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="empty">
+          <div class="empty-icon">✎</div>
+          <strong>Belum ada data permohonan</strong>
+          <span>Data akan muncul setelah modul izin dan cuti terintegrasi.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="pengaturan">
+      <div class="welcome">
+        <div>
+          <h1>Pengaturan Sistem</h1>
+          <p>Konfigurasi dasar presensi SMKN 1 WAJO.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:14px">Informasi Sekolah</h3>
+        <p style="font-size:13px;color:#64748b">Nama sekolah: SMKN 1 WAJO</p>
+        <p style="font-size:13px;color:#64748b">Zona waktu: Asia/Makassar</p>
+        <p style="font-size:13px;color:#64748b">Jam DATANG: 07:30</p>
+        <p style="font-size:13px;color:#64748b">Jam PULANG: 15:30</p>
+        <p style="font-size:11px;color:#94a3b8">
+          Pengaturan ini masih bersifat informasi tampilan. Perubahan konfigurasi akan diaktifkan melalui API.
+        </p>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="footer">
+    © 2026 SIAP GURU · SMKN 1 WAJO · Sistem Informasi Absensi dan Presensi Guru
+  </footer>
+</main>
+</div>
+
+<script>
+
+const API_BASE = "https://presensi-guru-api.esemkaexpo.workers.dev";
+const titles = {
+  dashboard:"Dashboard", guru:"Data Guru", pendaftaran:"Persetujuan Guru",
+  monitoring:"Monitoring Presensi", laporan:"Laporan Presensi",
+  izin:"Izin & Cuti", pengaturan:"Pengaturan Sistem"
+};
+document.documentElement.style.visibility = "hidden";
+let adminUser = null;
+let currentSettings = null;
+
+const $ = (s, root=document) => root.querySelector(s);
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[c]));
+const todayWITA = () => new Intl.DateTimeFormat("en-CA", {
+  timeZone:"Asia/Makassar", year:"numeric", month:"2-digit", day:"2-digit"
+}).format(new Date());
+const fmtDate = v => v ? new Date(v+"T00:00:00+08:00").toLocaleDateString("id-ID", {
+  timeZone:"Asia/Makassar", day:"2-digit", month:"long", year:"numeric"
+}) : "-";
+const fmtTime = v => v ? String(v).slice(0,5) : "-";
+const statusPill = s => {
+  const bad = /TIDAK|REJECT|TERLAMBAT|CEPAT|PENDING/i.test(s);
+  const good = /HADIR|APPROVED|DISETUJUI/i.test(s);
+  const bg = good ? "#dcfce7" : bad ? "#ffedd5" : "#e2e8f0";
+  const color = good ? "#166534" : bad ? "#9a3412" : "#475569";
+  return `<span style="display:inline-block;padding:5px 9px;border-radius:20px;background:${bg};color:${color};font-size:11px;font-weight:700">${esc(s||"-")}</span>`;
+};
+function token(){ return sessionStorage.getItem("siapGuruSession"); }
+async function api(path, options={}) {
+  const headers = { "Authorization":"Bearer "+token(), ...(options.body?{"Content-Type":"application/json"}:{}), ...(options.headers||{}) };
+  const res = await fetch(API_BASE+path, {...options, headers});
+  let data={}; try { data=await res.json(); } catch {}
+  if (res.status===401) {
+    sessionStorage.removeItem("siapGuruSession");
+    createLoginScreen("Sesi berakhir. Silakan login kembali.");
+    throw new Error("Sesi admin berakhir.");
+  }
+  if (!res.ok || data.success===false) throw new Error(data.error || data.message || `Permintaan gagal (${res.status})`);
+  return data;
+}
+function createLoginScreen(message="") {
+  $(".layout").style.display="none";
+  let screen=$("#authScreen");
+  if(!screen){
+    screen=document.createElement("div"); screen.id="authScreen";
+    screen.style.cssText="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f5f8fa;padding:20px;font-family:Inter,Arial,sans-serif";
+    screen.innerHTML=`<div style="width:100%;max-width:410px;background:white;padding:35px;border-radius:20px;text-align:center;box-shadow:0 10px 40px #0f172a12">
+      <div style="width:65px;height:65px;margin:0 auto 18px;border-radius:18px;background:#0d9488;color:white;display:grid;place-items:center;font-size:25px;font-weight:800">SG</div>
+      <h2 style="margin:0;color:#1e293b">SIAP GURU</h2><p style="color:#64748b;font-size:13px">Panel Administrator SMKN 1 WAJO</p>
+      <p id="authMessage" style="color:#dc2626;font-size:12px;margin:18px 0"></p>
+      <button id="telegramLogin" style="width:100%;padding:14px;border:0;border-radius:10px;background:#0d9488;color:white;font-weight:700;font-size:14px;cursor:pointer">Login dengan Telegram</button>
+      <p style="color:#94a3b8;font-size:11px;margin-top:20px">Akses khusus administrator sekolah</p></div>`;
+    document.body.appendChild(screen);
+    $("#telegramLogin").onclick=()=>location.href=API_BASE+"/auth/login";
+  }
+  $("#authMessage").textContent=message;
+  document.documentElement.style.visibility="visible";
+}
+async function verifyAdminSession(){
+  const params=new URLSearchParams(location.hash.slice(1)), newToken=params.get("session");
+  if(newToken){sessionStorage.setItem("siapGuruSession",newToken);history.replaceState(null,document.title,location.pathname+location.search);}
+  if(!token()){createLoginScreen(new URLSearchParams(location.search).get("auth_error")||"Silakan login untuk melanjutkan.");return;}
+  try{
+    const r=await fetch(API_BASE+"/auth/me",{headers:{"Authorization":"Bearer "+token()}});
+    if(!r.ok) throw new Error("Sesi tidak valid atau sudah berakhir.");
+    const result=await r.json();
+    if(!result.authenticated||!result.user) throw new Error("Akses administrator ditolak.");
+    adminUser=result.user;
+    $(".layout").style.display="flex";
+    const name=adminUser.name||"Administrator";
+    $(".welcome h1").textContent="Selamat Datang, "+name+"! 👋";
+    $(".admin-profile strong").textContent=name;
+    $(".admin-profile .avatar").textContent=name.charAt(0).toUpperCase();
+    $(".status").textContent="● Terhubung";
+    $(".status").style.background="#dcfce7"; $(".status").style.color="#166534";
+    addLogoutButton(); document.documentElement.style.visibility="visible";
+    await loadDashboard();
+  }catch(e){sessionStorage.removeItem("siapGuruSession");createLoginScreen(e.message);}
+}
+function addLogoutButton(){
+  if($("#logoutButton")) return;
+  const b=document.createElement("button"); b.id="logoutButton"; b.textContent="Keluar";
+  b.style.cssText="border:0;border-radius:9px;padding:9px 14px;background:#fff0e5;color:#c2410c;font-weight:700;cursor:pointer";
+  b.onclick=async()=>{try{await fetch(API_BASE+"/auth/logout",{method:"POST",headers:{"Authorization":"Bearer "+token()}});}catch(e){console.warn(e);}
+    sessionStorage.removeItem("siapGuruSession");location.reload();};
+  $(".top-actions").appendChild(b);
+}
+function showPage(page){
+  document.querySelectorAll(".page").forEach(el=>el.classList.toggle("active",el.id===page));
+  document.querySelectorAll(".nav-item").forEach(el=>el.classList.toggle("active",el.dataset.page===page));
+  $("#topTitle").textContent=titles[page]||"Dashboard"; $("#sidebar").classList.remove("open");
+  const loaders={dashboard:loadDashboard,guru:loadTeachers,pendaftaran:loadPending,monitoring:loadMonitoring,laporan:loadReports,izin:loadLeaves,pengaturan:loadSettings};
+  if(loaders[page]) loaders[page]().catch(showError);
+}
+function showError(e){
+  console.error(e);
+  const active=$(".page.active");
+  if(active){
+    let box=active.querySelector(".api-error");
+    if(!box){box=document.createElement("div");box.className="api-error";box.style.cssText="margin:12px 0;padding:12px 14px;border-radius:10px;background:#fff1f2;color:#be123c;font-size:12px";active.prepend(box);}
+    box.textContent="Gagal memuat data: "+(e.message||"Terjadi kesalahan.");
+  } else alert(e.message||"Terjadi kesalahan.");
+}
+function panel(title, subtitle, body){return `<div class="panel"><div class="panel-header"><h3>${title}</h3><small>${subtitle||""}</small></div>${body}</div>`;}
+function table(headers, rows, empty="Belum ada data.") {
+  return `<div class="table-wrap"><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows||`<tr><td colspan="${headers.length}" style="text-align:center;padding:28px;color:#64748b">${empty}</td></tr>`}</tbody></table></div>`;
+}
+function setPage(id, html){$("#"+id).innerHTML=html;}
+function setWelcome(id,title,desc,extra=""){setPage(id,`<div class="welcome"><div><h1>${title}</h1><p>${desc}</p></div>${extra}</div>`+($("#"+id).dataset.content||""));}
+function dateInput(id,value){return `<input id="${id}" type="date" value="${esc(value)}" style="padding:10px;border:1px solid #dbe3e8;border-radius:9px">`;}
+async function loadDashboard(){
+  $("#today").textContent=new Date().toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"Asia/Makassar"});
+  const date=todayWITA();
+  const [teachers,monitor,pending,leaves]=await Promise.all([
+    api("/admin/teachers?status=ALL"),api("/admin/attendance/monitoring?date="+date),
+    api("/admin/teachers?status=PENDING"),api("/admin/leave-requests?status=PENDING")
+  ]);
+  const cards=[["Total Guru",teachers.total||0,"♙","teal"],["Hadir Datang",monitor.total_hadir||0,"📍","orange"],["Belum Absen Datang",monitor.total_belum_datang||0,"◷","blue"],["Menunggu Persetujuan",(pending.total||0)+(leaves.total||0),"☷","purple"]];
+  $(".stats").innerHTML=cards.map(c=>`<div class="stat-card"><div class="stat-head"><div class="stat-icon ${c[3]}">${c[2]}</div><small>SIAP GURU</small></div><p>${c[0]}</p><h2>${c[1]}</h2><small>Data terkini dari database</small></div>`).join("");
+  const rows=(monitor.data||[]).slice(0,8).map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.teacher_name)}</td><td>${statusPill(x.status_datang)}</td><td>${fmtTime(x.waktu_datang)}</td><td>${statusPill(x.status_pulang)}</td><td>${fmtTime(x.waktu_pulang)}</td></tr>`).join("");
+  $(".section-grid").innerHTML=panel("Monitoring Presensi Hari Ini",fmtDate(date),table(["No","Nama Guru","Datang","Waktu","Pulang","Waktu"],rows,"Belum ada data guru atau presensi."))+panel("Akses Cepat","MENU ADMIN",`<div class="quick-grid"><button class="quick" data-target="guru"><span>♙</span><strong>Data Guru</strong><small>Kelola pengguna</small></button><button class="quick" data-target="pendaftaran"><span>☷</span><strong>Pendaftaran</strong><small>Persetujuan guru</small></button><button class="quick" data-target="monitoring"><span>◷</span><strong>Presensi</strong><small>Monitoring harian</small></button><button class="quick" data-target="laporan"><span>▤</span><strong>Laporan</strong><small>Rekap presensi</small></button></div>`);
+  $(".quick").parentElement.querySelectorAll("[data-target]").forEach(b=>b.onclick=()=>showPage(b.dataset.target));
+  $("#dashboard .panel:last-child").innerHTML=panel("Ringkasan Layanan","PENDING",`<p style="font-size:13px;color:#64748b">Pendaftaran guru menunggu: <b>${pending.total||0}</b> · Pengajuan izin menunggu: <b>${leaves.total||0}</b> · Belum absen pulang: <b>${monitor.total_belum_pulang||0}</b></p>`);
+}
+async function loadTeachers(){
+  setPage("guru",`<div class="welcome"><div><h1>Data Guru</h1><p>Pengelolaan akun guru SIAP GURU.</p></div><button class="btn-primary" id="refreshTeachers">Muat Ulang</button></div>
+    <div class="panel" style="margin-bottom:18px"><div class="panel-header"><h3>Tambah Akun Guru</h3><small>Pendaftaran melalui admin</small></div>
+      <form id="teacherCreateForm" class="settings-grid">
+        ${field("Nama Lengkap","full_name","")}
+        ${field("Telegram ID","telegram_id","","text")}
+        ${field("NIP (opsional)","nip","")}
+        ${field("Jabatan","position","")}
+        ${field("Status Kepegawaian","employment_status","")}
+        <div style="grid-column:1/-1"><button class="btn-primary" type="submit">Simpan Akun Guru</button><span id="teacherCreateMessage" style="font-size:12px;color:#64748b;margin-left:10px"></span></div>
+      </form>
+    </div>
+    <div class="panel"><div class="panel-header"><h3>Daftar Guru</h3><small id="teacherCount">Memuat...</small></div><div id="teacherTable"></div></div>`);
+  $("#refreshTeachers").onclick=loadTeachers;
+  $("#teacherCreateForm").onsubmit=createTeacher;
+  const r=await api("/admin/teachers?status=ALL"); $("#teacherCount").textContent=`${r.total||0} akun`;
+  const rows=(r.data||[]).map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.full_name)}</td><td>${esc(x.nip||"—")}</td><td>${esc(x.employment_status||"—")}</td><td>${statusPill(x.approval_status)}</td></tr>`).join("");
+  $("#teacherTable").innerHTML=table(["No","Nama Guru","NIP","Status Kepegawaian","Status Akun"],rows);
+}
+async function createTeacher(e){
+  e.preventDefault();
+  const f=e.currentTarget, data=Object.fromEntries(new FormData(f).entries());
+  if(!data.full_name.trim()||!data.telegram_id.trim()){alert("Nama lengkap dan Telegram ID wajib diisi.");return;}
+  try{
+    const r=await api("/admin/teachers",{method:"POST",body:JSON.stringify(data)});
+    $("#teacherCreateMessage").textContent=r.message||"Akun berhasil dibuat.";
+    f.reset(); await loadTeachers();
+  }catch(err){alert(err.message);}
+}
+async function loadPending(){
+  setPage("pendaftaran",`<div class="welcome"><div><h1>Persetujuan Guru</h1><p>Verifikasi pendaftaran akun guru baru.</p></div><button class="btn-primary" id="refreshPending">Muat Ulang</button></div><div class="panel"><div class="panel-header"><h3>Pendaftaran Menunggu</h3><small id="pendingCount"></small></div><div id="pendingTable"></div></div>`);
+  $("#refreshPending").onclick=loadPending;
+  const r=await api("/admin/teachers?status=PENDING"); $("#pendingCount").textContent=`${r.total||0} pendaftaran`;
+  const rows=(r.data||[]).map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.full_name)}</td><td>${esc(x.telegram_id)}</td><td>${statusPill(x.approval_status)}</td><td><button class="btn-primary" data-approve="${x.id}">Setujui</button> <button class="btn-danger" data-reject="${x.id}">Tolak</button></td></tr>`).join("");
+  $("#pendingTable").innerHTML=table(["No","Nama Guru","Telegram ID","Status","Tindakan"],rows,"Tidak ada pendaftaran yang menunggu.");
+  $("#pendingTable").querySelectorAll("[data-approve]").forEach(b=>b.onclick=()=>reviewTeacher(b.dataset.approve,"APPROVE"));
+  $("#pendingTable").querySelectorAll("[data-reject]").forEach(b=>b.onclick=()=>reviewTeacher(b.dataset.reject,"REJECT"));
+}
+async function reviewTeacher(id,action){
+  const reason=action==="REJECT"?prompt("Alasan penolakan (opsional):")||"": "";
+  if(action==="REJECT"&&!confirm("Tolak pendaftaran guru ini?")) return;
+  if(action==="APPROVE"&&!confirm("Setujui pendaftaran guru ini?")) return;
+  await api("/admin/teachers/approval",{method:"POST",body:JSON.stringify({teacher_id:Number(id),action,rejection_reason:reason})});
+  alert(action==="APPROVE"?"Pendaftaran disetujui.":"Pendaftaran ditolak."); loadPending();
+}
+async function loadMonitoring(){
+  const d=todayWITA();
+  setPage("monitoring",`<div class="welcome"><div><h1>Monitoring Presensi</h1><p>Pemantauan kedatangan dan kepulangan guru.</p></div><div>${dateInput("monitorDate",d)} <button class="btn-primary" id="runMonitoring">Tampilkan</button></div></div><div class="panel"><div class="panel-header"><h3>Presensi Harian</h3><small id="monitorMeta"></small></div><div id="monitorTable"></div></div>`);
+  $("#runMonitoring").onclick=renderMonitoring; await renderMonitoring();
+}
+async function renderMonitoring(){
+  const r=await api("/admin/attendance/monitoring?date="+encodeURIComponent($("#monitorDate").value));
+  $("#monitorMeta").textContent=`${r.total_teachers} guru · ${r.is_holiday?"Hari libur":r.is_work_day?"Hari kerja":"Bukan hari kerja"}`;
+  const rows=(r.data||[]).map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.teacher_name)}</td><td>${statusPill(x.status_datang)}</td><td>${fmtTime(x.waktu_datang)}</td><td>${statusPill(x.status_pulang)}</td><td>${fmtTime(x.waktu_pulang)}</td></tr>`).join("");
+  $("#monitorTable").innerHTML=`<div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:15px;font-size:13px"><b>Hadir: ${r.total_hadir}</b><b>Belum datang: ${r.total_belum_datang}</b><b>Belum pulang: ${r.total_belum_pulang}</b></div>`+table(["No","Nama Guru","Status Datang","Waktu","Status Pulang","Waktu"],rows);
+}
+async function loadReports(){
+  const d=todayWITA();
+  setPage("laporan",`<div class="welcome"><div><h1>Laporan Presensi</h1><p>Rekapitulasi presensi guru. Maksimal rentang 31 hari.</p></div><div>${dateInput("reportFrom",d)} ${dateInput("reportTo",d)} <button class="btn-primary" id="runReport">Tampilkan</button></div></div><div class="panel"><div class="panel-header"><h3>Hasil Laporan</h3><button class="btn-primary" id="exportReport">Unduh CSV</button></div><div id="reportMeta"></div><div id="reportTable"></div></div>`);
+  $("#runReport").onclick=renderReport; $("#exportReport").onclick=exportReport; await renderReport();
+}
+let reportRows=[];
+async function renderReport(){
+  const from=$("#reportFrom").value,to=$("#reportTo").value;
+  const r=await api(`/admin/reports/attendance?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
+  reportRows=r.data||[]; $("#reportMeta").innerHTML=`<p style="font-size:12px;color:#64748b">${r.total_teachers} guru · ${r.total_days} hari · ${r.total_records} baris</p>`;
+  const rows=reportRows.map((x,i)=>`<tr><td>${i+1}</td><td>${fmtDate(x.date)}</td><td>${esc(x.teacher_name)}</td><td>${statusPill(x.status_datang)}</td><td>${fmtTime(x.waktu_datang)}</td><td>${statusPill(x.status_pulang)}</td><td>${fmtTime(x.waktu_pulang)}</td></tr>`).join("");
+  $("#reportTable").innerHTML=table(["No","Tanggal","Nama Guru","Datang","Jam","Pulang","Jam"],rows);
+}
+function exportReport(){
+  if(!reportRows.length){alert("Tidak ada data untuk diunduh.");return;}
+  const cols=["date","teacher_name","status_datang","waktu_datang","status_pulang","waktu_pulang"];
+  const csv=[["Tanggal","Nama Guru","Status Datang","Waktu Datang","Status Pulang","Waktu Pulang"],...reportRows.map(r=>cols.map(k=>r[k]??""))].map(row=>row.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\r\n");
+  const a=document.createElement("a"),url=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));
+  a.href=url;a.download="Laporan_Presensi_SIAP_GURU.csv";a.click();URL.revokeObjectURL(url);
+}
+async function loadLeaves(){
+  setPage("izin",`<div class="welcome"><div><h1>Izin & Cuti</h1><p>Daftar pengajuan izin dan cuti guru.</p></div><select id="leaveStatus" style="padding:10px;border:1px solid #dbe3e8;border-radius:9px"><option>ALL</option><option>PENDING</option><option>APPROVED</option><option>REJECTED</option></select></div><div class="panel"><div class="panel-header"><h3>Pengajuan Guru</h3><small id="leaveCount"></small></div><div id="leaveTable"></div></div>`);
+  $("#leaveStatus").onchange=renderLeaves; await renderLeaves();
+}
+async function renderLeaves(){
+  const r=await api("/admin/leave-requests?status="+$("#leaveStatus").value);$("#leaveCount").textContent=`${r.total||0} pengajuan`;
+  const rows=(r.data||[]).map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.full_name)}</td><td>${esc(x.leave_type)}</td><td>${fmtDate(x.start_date)} – ${fmtDate(x.end_date)}</td><td>${esc(x.reason)}</td><td>${statusPill(x.approval_status)}</td><td>${x.approval_status==="PENDING"?`<button class="btn-primary" data-leave-approve="${x.id}">Setujui</button> <button class="btn-danger" data-leave-reject="${x.id}">Tolak</button>`:"-"}</td></tr>`).join("");
+  $("#leaveTable").innerHTML=table(["No","Nama","Jenis","Periode","Alasan","Status","Tindakan"],rows,"Belum ada pengajuan.");
+  $("#leaveTable").querySelectorAll("[data-leave-approve]").forEach(b=>b.onclick=()=>reviewLeave(b.dataset.leaveApprove,"APPROVE"));
+  $("#leaveTable").querySelectorAll("[data-leave-reject]").forEach(b=>b.onclick=()=>reviewLeave(b.dataset.leaveReject,"REJECT"));
+}
+async function reviewLeave(id,action){
+  if(!confirm(action==="APPROVE"?"Setujui pengajuan ini?":"Tolak pengajuan ini?"))return;
+  const note=prompt("Catatan admin (opsional):")||"";
+  await api("/admin/leave-requests/review",{method:"POST",body:JSON.stringify({request_id:Number(id),action,admin_note:note})});
+  alert("Pengajuan berhasil diproses.");renderLeaves();
+}
+async function loadSettings(){
+  setPage("pengaturan",`<div class="welcome"><div><h1>Pengaturan Sistem</h1><p>Konfigurasi presensi SMKN 1 WAJO.</p></div></div><div class="panel"><div id="settingsForm">Memuat pengaturan...</div></div><div class="panel" style="margin-top:18px"><div class="panel-header"><h3>Hari Libur</h3><small>Kelola kalender sekolah</small></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px">${dateInput("holidayDate",todayWITA())}<input id="holidayDesc" placeholder="Keterangan hari libur" style="padding:10px;border:1px solid #dbe3e8;border-radius:9px;flex:1;min-width:180px"><button class="btn-primary" id="addHoliday">Tambah</button></div><div id="holidayTable"></div></div>`);
+  const r=await api("/admin/settings");currentSettings=r.data;renderSettingsForm(currentSettings);
+  $("#settingsForm").querySelector("form").onsubmit=saveSettings;
+  $("#addHoliday").onclick=addHoliday; await loadHolidays();
+}
+function renderSettingsForm(s){
+  const days=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"],active=String(s.work_days||"").split(",").map(Number);
+  $("#settingsForm").innerHTML=`<h3 style="font-size:14px">Informasi Sekolah & Presensi</h3><form class="settings-grid">
+    ${field("Nama Sekolah","school_name",s.school_name)} ${field("NPSN","npsn",s.npsn)}
+    ${field("Zona Waktu","timezone",s.timezone)} ${field("Jam Mulai Presensi","arrival_time",s.arrival_time,"time")}
+    ${field("Jam Pulang","departure_time",s.departure_time,"time")} ${field("Radius GPS (meter)","gps_radius",s.gps_radius,"number")}
+    ${field("Latitude Sekolah","gps_latitude",s.gps_latitude,"number")} ${field("Longitude Sekolah","gps_longitude",s.gps_longitude,"number")}
+    <div style="grid-column:1/-1"><b style="font-size:12px">Hari Kerja</b><div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px">${days.map((d,i)=>`<label style="font-size:12px"><input type="checkbox" name="work_days" value="${i}" ${active.includes(i)?"checked":""}> ${d}</label>`).join("")}</div></div>
+    <div style="grid-column:1/-1"><button class="btn-primary" type="submit">Simpan Pengaturan</button> <span id="settingsMessage" style="font-size:12px;color:#64748b"></span></div></form>`;
+}
+function field(label,name,value,type="text"){return `<label style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#475569">${label}<input name="${name}" type="${type}" value="${esc(value)}" style="padding:10px;border:1px solid #dbe3e8;border-radius:9px;width:100%" ${type==="number"?'step="any"':""}></label>`;}
+async function saveSettings(e){
+  e.preventDefault();const f=e.currentTarget,fd=new FormData(f),body={};
+  ["school_name","npsn","timezone","arrival_time","departure_time","gps_latitude","gps_longitude","gps_radius"].forEach(k=>body[k]=fd.get(k));
+  body.gps_latitude=body.gps_latitude===""?null:Number(body.gps_latitude);body.gps_longitude=body.gps_longitude===""?null:Number(body.gps_longitude);body.gps_radius=Number(body.gps_radius);
+  body.work_days=fd.getAll("work_days").map(Number);
+  try{await api("/admin/settings",{method:"PATCH",body:JSON.stringify(body)});$("#settingsMessage").textContent="Pengaturan berhasil disimpan.";await loadSettings();}
+  catch(e){alert(e.message);}
+}
+async function loadHolidays(){
+  const r=await api("/admin/holidays");const rows=(r.data||[]).map((x,i)=>`<tr><td>${i+1}</td><td>${fmtDate(x.holiday_date)}</td><td>${esc(x.description)}</td><td><button class="btn-danger" data-holiday="${esc(x.holiday_date)}">Hapus</button></td></tr>`).join("");
+  $("#holidayTable").innerHTML=table(["No","Tanggal","Keterangan","Tindakan"],rows,"Belum ada hari libur.");
+  $("#holidayTable").querySelectorAll("[data-holiday]").forEach(b=>b.onclick=()=>deleteHoliday(b.dataset.holiday));
+}
+async function addHoliday(){
+  const date=$("#holidayDate").value,description=$("#holidayDesc").value.trim();if(!date||!description){alert("Tanggal dan keterangan wajib diisi.");return;}
+  try{await api("/admin/holidays",{method:"POST",body:JSON.stringify({holiday_date:date,description})});$("#holidayDesc").value="";await loadHolidays();}
+  catch(e){alert(e.message);}
+}
+async function deleteHoliday(date){
+  if(!confirm("Hapus hari libur "+date+"?"))return;
+  try{await api("/admin/holidays",{method:"DELETE",body:JSON.stringify({holiday_date:date})});await loadHolidays();}
+  catch(e){alert(e.message);}
+}
+
+document.querySelectorAll(".nav-item").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+document.querySelectorAll(".quick").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.target)));
+$("#toggleMenu").addEventListener("click",()=>$("#sidebar").classList.toggle("open"));
+verifyAdminSession();
+
+</script>
+</body>
+</html>
